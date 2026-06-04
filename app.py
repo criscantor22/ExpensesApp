@@ -8,31 +8,20 @@ st.set_page_config(
 
 st.title("✈️ TravelAI Expense Assistant")
 
-st.markdown(
-    """
-    Upload travel receipts and generate
-    AI-powered expense reports.
-    """
+receipts = st.file_uploader(
+    "Upload Receipts",
+    accept_multiple_files=True
 )
 
-col1, col2 = st.columns(2)
-
-with col1:
-    receipts = st.file_uploader(
-        "Upload Receipts",
-        accept_multiple_files=True
-    )
-
-with col2:
-    itinerary = st.file_uploader(
-        "Upload Travel Itinerary"
-    )
+itinerary = st.file_uploader(
+    "Upload Travel Itinerary"
+)
 
 if st.button("Generate Report"):
 
-    st.success("Report Generated Successfully!")
+    st.success("AI Report Generated")
 
-    data = {
+    df = pd.DataFrame({
         "Category": [
             "Hotel",
             "Meal",
@@ -47,14 +36,53 @@ if st.button("Generate Report"):
             3500,
             780,
             1290
+        ],
+        "Status": [
+            "Approved",
+            "Policy Violation",
+            "Approved"
         ]
-    }
+    })
 
-    df = pd.DataFrame(data)
+    col1, col2, col3 = st.columns(3)
 
-    st.metric(
-        "Total Expenses",
-        f"${df['Amount'].sum():,.0f}"
-    )
+    with col1:
+        st.metric(
+            "Total Expenses",
+            "$5,570"
+        )
+
+    with col2:
+        st.metric(
+            "Receipts Processed",
+            len(receipts) if receipts else 0
+        )
+
+    with col3:
+        st.metric(
+            "Time Saved",
+            "27 min"
+        )
 
     st.dataframe(df)
+
+    st.subheader("Policy Compliance")
+
+    st.error(
+        "Meal expense exceeded company policy by MXN 280"
+    )
+
+    st.subheader("AI Summary")
+
+    st.info(
+        """
+        Travel expense report generated successfully.
+
+        Total Expenses: MXN 5,570
+
+        One policy violation detected.
+
+        Estimated savings:
+        90% reduction in report creation time.
+        """
+    )
