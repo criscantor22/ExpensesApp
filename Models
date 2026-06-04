@@ -1,0 +1,8 @@
+from pydantic import BaseModel
+
+class Expense(BaseModel):
+    category: str
+    vendor: str
+    amount: float
+    date: str
+    status: str = "Pending"
