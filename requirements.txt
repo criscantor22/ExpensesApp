@@ -1,1 +1,5 @@
-
+streamlit
+pandas
+pillow
+openai
+python-dotenv
