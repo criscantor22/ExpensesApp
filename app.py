@@ -23,7 +23,7 @@ if api_key:
 # =========================
 
 st.set_page_config(
-    page_title="TravelAI Expense Assistant",
+    page_title="TravelWise",
     page_icon="✈️",
     layout="wide"
 )
@@ -52,6 +52,7 @@ st.markdown("""
 
 .chat-title {
     color: white;
+    font-family: 'Georgia', serif;
     font-size: 20px;
     font-weight: bold;
     margin-bottom: 12px;
