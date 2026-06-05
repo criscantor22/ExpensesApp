@@ -320,58 +320,58 @@ Review expenses flagged by compliance policies.
 # =========================
 # EXPENSE COPILOT
 # =========================
-
-with st.popover("🤖 Expense Copilot"):
-
-    report_context = df.to_string(index=False)
-
-    policy_context = f"""
-Meal Limit: {meal_limit} MXN
-Hotel Limit: {hotel_limit} MXN
-"""
-
-    question = st.text_input(
-        "Ask about your expenses"
-    )
-
-    if st.button("Ask AI"):
-
-        if client:
-
-            with st.spinner("Analyzing..."):
-
-                try:
-
-                    response = client.responses.create(
-                        model="gpt-5",
-                        input=f"""
-You are TravelAI.
-
-Company Policy:
-{policy_context}
-
-Expense Report:
-{report_context}
-
-User Question:
-{question}
-
-Answer professionally and explain policy violations when applicable.
-"""
-                    )
-
-                    st.success(
-                        response.output_text
-                    )
-
-                except Exception as e:
-
-                    st.error(
-                        f"Error: {e}"
-                    )
-
-        else:
-
-            st.warning(
-                "OPENAI_API_KEY not configured."
-            )
+if st.session_state.report_generated:
+    with st.popover("🤖 Expense Copilot"):
+    
+        report_context = df.to_string(index=False)
+    
+        policy_context = f"""
+    Meal Limit: {meal_limit} MXN
+    Hotel Limit: {hotel_limit} MXN
+    """
+    
+        question = st.text_input(
+            "Ask about your expenses"
+        )
+    
+        if st.button("Ask AI"):
+    
+            if client:
+    
+                with st.spinner("Analyzing..."):
+    
+                    try:
+    
+                        response = client.responses.create(
+                            model="gpt-5",
+                            input=f"""
+    You are TravelAI.
+    
+    Company Policy:
+    {policy_context}
+    
+    Expense Report:
+    {report_context}
+    
+    User Question:
+    {question}
+    
+    Answer professionally and explain policy violations when applicable.
+    """
+                        )
+    
+                        st.success(
+                            response.output_text
+                        )
+    
+                    except Exception as e:
+    
+                        st.error(
+                            f"Error: {e}"
+                        )
+    
+            else:
+    
+                st.warning(
+                    "OPENAI_API_KEY not configured."
+                )
