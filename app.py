@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 
 st.set_page_config(
-    page_title="TravelAI Expense Assistant",
+    page_title="TravelAI Expense Assistant    V2",
     page_icon="✈️",
     layout="wide"
 )
