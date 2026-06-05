@@ -318,59 +318,27 @@ Review expenses flagged by compliance policies.
         mime="text/csv"
     )
 # =========================
-# FLOATING COPILOT
+# EXPENSE COPILOT
 # =========================
 
-if st.session_state.report_generated:
+with st.popover("🤖 Expense Copilot"):
 
     report_context = df.to_string(index=False)
 
-else:
-
-    report_context = "No report generated yet."
-
-policy_context = f"""
+    policy_context = f"""
 Meal Limit: {meal_limit} MXN
 Hotel Limit: {hotel_limit} MXN
 """
 
-with st.container():
+    question = st.text_input(
+        "Ask about your expenses"
+    )
 
-    col_a, col_b = st.columns([10,1])
-
-    with col_b:
-
-        if st.button("🤖"):
-            st.session_state.chat_open = (
-                not st.session_state.chat_open
-            )
-
-if st.session_state.chat_open:
-
-    st.markdown("""
-<div class="chat-box">
-<div class="chat-title">
-🤖 Expense Copilot
-</div>
-""", unsafe_allow_html=True)
-
-    with st.form("chat_form"):
-
-        question = st.text_input(
-            "Ask about your expenses"
-        )
-
-        submitted = st.form_submit_button(
-            "Ask AI"
-        )
-
-    if submitted and question:
+    if st.button("Ask AI"):
 
         if client:
 
-            with st.spinner(
-                "Analyzing..."
-            ):
+            with st.spinner("Analyzing..."):
 
                 try:
 
@@ -392,34 +360,18 @@ Answer professionally and explain policy violations when applicable.
 """
                     )
 
-                    st.session_state.chat_response = (
+                    st.success(
                         response.output_text
                     )
 
                 except Exception as e:
 
-                    st.session_state.chat_response = (
+                    st.error(
                         f"Error: {e}"
                     )
 
         else:
 
-            st.session_state.chat_response = (
+            st.warning(
                 "OPENAI_API_KEY not configured."
             )
-
-    if st.session_state.chat_response:
-
-        st.markdown(
-            f"""
-<div class="chat-answer">
-{st.session_state.chat_response}
-</div>
-""",
-            unsafe_allow_html=True
-        )
-
-    st.markdown(
-        "</div>",
-        unsafe_allow_html=True
-    )
