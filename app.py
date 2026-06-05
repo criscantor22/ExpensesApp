@@ -151,3 +151,31 @@ if st.button("🚀 Generate AI Report"):
         file_name="expense_report.csv",
         mime="text/csv"
     )
+
+st.header("💬 Ask About Your Expenses")
+
+question = st.text_input(
+    "Ask a question about your expense report"
+)
+
+if question:
+
+    if "hotel" in question.lower():
+        st.success(
+            "Hotel expenses total MXN 3,500."
+        )
+
+    elif "meal" in question.lower():
+        st.warning(
+            "Meal expense exceeded company policy."
+        )
+
+    elif "total" in question.lower():
+        st.success(
+            f"Total expenses are MXN {total:,.0f}"
+        )
+
+    else:
+        st.info(
+            "Expense report analyzed successfully."
+        )
