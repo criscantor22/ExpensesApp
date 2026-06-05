@@ -27,13 +27,58 @@ st.set_page_config(
     page_icon="✈️",
     layout="wide"
 )
+st.markdown("""
+<style>
 
+.chat-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+.chat-box {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 420px;
+    background: #0f172a;
+    border: 1px solid #4f46e5;
+    border-radius: 18px;
+    padding: 18px;
+    z-index: 9999;
+    box-shadow: 0 0 30px rgba(79,70,229,.4);
+}
+
+.chat-title {
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+.chat-answer {
+    background: #111827;
+    color: white;
+    padding: 12px;
+    border-radius: 12px;
+    margin-top: 10px;
+}
+
+</style>
+""", unsafe_allow_html=True)
 # =========================
 # SESSION STATE
 # =========================
 
 if "report_generated" not in st.session_state:
     st.session_state.report_generated = False
+
+if "chat_response" not in st.session_state:
+    st.session_state.chat_response = ""
+
+if "chat_open" not in st.session_state:
+    st.session_state.chat_open = False
 
 # =========================
 # HEADER
@@ -272,26 +317,41 @@ Review expenses flagged by compliance policies.
         file_name="expense_report.csv",
         mime="text/csv"
     )
+# =========================
+# FLOATING COPILOT
+# =========================
 
-    # =========================
-    # CHATBOT
-    # =========================
+report_context = df.to_string(index=False)
 
-    st.divider()
-
-    st.header("💬 Expense Copilot")
-
-    report_context = df.to_string(index=False)
-
-    policy_context = f"""
+policy_context = f"""
 Meal Limit: {meal_limit} MXN
 Hotel Limit: {hotel_limit} MXN
 """
 
+with st.container():
+
+    col_a, col_b = st.columns([10,1])
+
+    with col_b:
+
+        if st.button("🤖"):
+            st.session_state.chat_open = (
+                not st.session_state.chat_open
+            )
+
+if st.session_state.chat_open:
+
+    st.markdown("""
+<div class="chat-box">
+<div class="chat-title">
+🤖 Expense Copilot
+</div>
+""", unsafe_allow_html=True)
+
     with st.form("chat_form"):
 
         question = st.text_input(
-            "Ask a question about your expenses"
+            "Ask about your expenses"
         )
 
         submitted = st.form_submit_button(
@@ -303,7 +363,7 @@ Hotel Limit: {hotel_limit} MXN
         if client:
 
             with st.spinner(
-                "Analyzing expenses..."
+                "Analyzing..."
             ):
 
                 try:
@@ -311,7 +371,7 @@ Hotel Limit: {hotel_limit} MXN
                     response = client.responses.create(
                         model="gpt-5",
                         input=f"""
-You are TravelAI, an enterprise travel expense assistant.
+You are TravelAI.
 
 Company Policy:
 {policy_context}
@@ -326,18 +386,34 @@ Answer professionally and explain policy violations when applicable.
 """
                     )
 
-                    st.success(
+                    st.session_state.chat_response = (
                         response.output_text
                     )
 
                 except Exception as e:
 
-                    st.error(
-                        f"OpenAI Error: {e}"
+                    st.session_state.chat_response = (
+                        f"Error: {e}"
                     )
 
         else:
 
-            st.warning(
+            st.session_state.chat_response = (
                 "OPENAI_API_KEY not configured."
             )
+
+    if st.session_state.chat_response:
+
+        st.markdown(
+            f"""
+<div class="chat-answer">
+{st.session_state.chat_response}
+</div>
+""",
+            unsafe_allow_html=True
+        )
+
+    st.markdown(
+        "</div>",
+        unsafe_allow_html=True
+    )
