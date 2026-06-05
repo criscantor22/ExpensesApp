@@ -23,7 +23,7 @@ if api_key:
 # =========================
 
 st.set_page_config(
-    page_title="TravelAI Expense Assistant",
+    page_title="TRAVEL WISE",
     page_icon="✈️",
     layout="wide"
 )
@@ -56,6 +56,23 @@ st.markdown("""
     font-weight: bold;
     margin-bottom: 12px;
 }
+
+/* Nueva clase para el título principal */
+.app-title {
+    font-family: 'Times New Roman', serif;
+    font-size: 40px;
+    font-weight: bold;
+    text-align: center;
+    color: #4f46e5;
+    margin-top: 20px;
+    margin-bottom: 30px;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# Renderizar el título con la clase definida
+st.markdown('<div class="app-title">TRAVEL WISE</div>', unsafe_allow_html=True)
 
 .chat-answer {
     background: #111827;
