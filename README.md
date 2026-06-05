@@ -67,7 +67,7 @@ ExpensesApp/
 ### Clone the Repository
 
 ##bash
-git clone https://github.com/your-repository.git
+git clone https://github.com/ExpensesApp.git
 cd ExpensesApp
 
 ##install dependencies
