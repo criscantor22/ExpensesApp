@@ -78,3 +78,5 @@ OPENAI_API_KEY=your_api_key_here
 
 ##run the app
 python -m streamlit run app.py
+
+https://chatgpt.com/share/6a22fddc-b368-83e8-b705-56b038f6168f
