@@ -5,9 +5,9 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 
-# ==================================
-# OPENAI CONFIGURATION
-# ==================================
+# =========================
+# OPENAI
+# =========================
 
 load_dotenv()
 
@@ -18,9 +18,9 @@ client = None
 if api_key:
     client = OpenAI(api_key=api_key)
 
-# ==================================
+# =========================
 # PAGE CONFIG
-# ==================================
+# =========================
 
 st.set_page_config(
     page_title="TravelAI Expense Assistant",
@@ -28,9 +28,16 @@ st.set_page_config(
     layout="wide"
 )
 
-# ==================================
+# =========================
+# SESSION STATE
+# =========================
+
+if "report_generated" not in st.session_state:
+    st.session_state.report_generated = False
+
+# =========================
 # HEADER
-# ==================================
+# =========================
 
 st.title("✈️ TravelAI Expense Assistant")
 
@@ -38,9 +45,9 @@ st.subheader(
     "AI-Powered Travel Expense Report Generator"
 )
 
-# ==================================
+# =========================
 # SIDEBAR
-# ==================================
+# =========================
 
 st.sidebar.header("Company Policy")
 
@@ -54,9 +61,9 @@ hotel_limit = st.sidebar.number_input(
     value=2500
 )
 
-# ==================================
+# =========================
 # FILE UPLOADS
-# ==================================
+# =========================
 
 col1, col2 = st.columns(2)
 
@@ -79,17 +86,15 @@ with col2:
         type=["pdf", "csv"]
     )
 
-# ==================================
-# RECEIPT PREVIEW
-# ==================================
+# =========================
+# PREVIEW RECEIPTS
+# =========================
 
 if receipts:
 
     st.success(
         f"{len(receipts)} receipt(s) uploaded"
     )
-
-    st.subheader("Receipt Preview")
 
     preview_cols = st.columns(3)
 
@@ -106,20 +111,22 @@ if receipts:
                     use_container_width=True
                 )
 
-# ==================================
-# GENERATE REPORT
-# ==================================
+# =========================
+# GENERATE REPORT BUTTON
+# =========================
 
 if st.button(
     "🚀 Generate AI Report",
     use_container_width=True
 ):
+    st.session_state.report_generated = True
 
-    st.success(
-        "Expense Report Generated Successfully!"
-    )
+# =========================
+# REPORT
+# =========================
 
-    # DEMO DATA
+if st.session_state.report_generated:
+
     data = [
         ["Hotel", "Marriott", 3500, "Approved"],
         ["Meal", "Restaurant XYZ", 780, "Violation"],
@@ -138,9 +145,13 @@ if st.button(
 
     total = df["Amount"].sum()
 
-    # ==================================
+    st.success(
+        "Expense Report Generated Successfully!"
+    )
+
+    # =========================
     # METRICS
-    # ==================================
+    # =========================
 
     st.header("📊 Expense Dashboard")
 
@@ -170,9 +181,9 @@ if st.button(
             "27 min"
         )
 
-    # ==================================
+    # =========================
     # TABLE
-    # ==================================
+    # =========================
 
     st.header("📋 Expense Details")
 
@@ -181,17 +192,15 @@ if st.button(
         use_container_width=True
     )
 
-    # ==================================
-    # POLICY CHECKER
-    # ==================================
+    # =========================
+    # COMPLIANCE
+    # =========================
 
     st.header("⚠ Policy Compliance")
 
     violations = []
 
-    meal_rows = df[
-        df["Category"] == "Meal"
-    ]
+    meal_rows = df[df["Category"] == "Meal"]
 
     for _, row in meal_rows.iterrows():
 
@@ -199,15 +208,13 @@ if st.button(
 
             violations.append(
                 f"""
-                Meal expense at {row['Vendor']}
-                exceeded company policy by
-                MXN {row['Amount'] - meal_limit:.0f}
-                """
+Meal expense at {row['Vendor']}
+exceeded company policy by
+MXN {row['Amount'] - meal_limit:.0f}
+"""
             )
 
-    hotel_rows = df[
-        df["Category"] == "Hotel"
-    ]
+    hotel_rows = df[df["Category"] == "Hotel"]
 
     for _, row in hotel_rows.iterrows():
 
@@ -215,10 +222,10 @@ if st.button(
 
             violations.append(
                 f"""
-                Hotel expense at {row['Vendor']}
-                exceeded company policy by
-                MXN {row['Amount'] - hotel_limit:.0f}
-                """
+Hotel expense at {row['Vendor']}
+exceeded company policy by
+MXN {row['Amount'] - hotel_limit:.0f}
+"""
             )
 
     if violations:
@@ -231,9 +238,9 @@ if st.button(
             "No policy violations detected"
         )
 
-    # ==================================
+    # =========================
     # AI SUMMARY
-    # ==================================
+    # =========================
 
     st.header("🤖 AI Summary")
 
@@ -255,48 +262,48 @@ Review expenses flagged by compliance policies.
 """
     )
 
-    # ==================================
-    # DOWNLOAD CSV
-    # ==================================
+    # =========================
+    # DOWNLOAD
+    # =========================
 
     st.download_button(
-        label="📥 Download Report",
+        label="📥 Download CSV Report",
         data=df.to_csv(index=False),
         file_name="expense_report.csv",
         mime="text/csv"
     )
 
-    # ==================================
+    # =========================
     # CHATBOT
-    # ==================================
+    # =========================
 
     st.divider()
 
     st.header("💬 Expense Copilot")
 
-    st.write(
-        "Ask questions about your expense report."
-    )
+    report_context = df.to_string(index=False)
 
-    question = st.text_input(
-        "Example: Why was my meal expense rejected?"
-    )
-
-    if question:
-
-        report_context = df.to_string(
-            index=False
-        )
-
-        policy_context = f"""
+    policy_context = f"""
 Meal Limit: {meal_limit} MXN
 Hotel Limit: {hotel_limit} MXN
 """
 
+    with st.form("chat_form"):
+
+        question = st.text_input(
+            "Ask a question about your expenses"
+        )
+
+        submitted = st.form_submit_button(
+            "Ask AI"
+        )
+
+    if submitted and question:
+
         if client:
 
             with st.spinner(
-                "Analyzing your expenses..."
+                "Analyzing expenses..."
             ):
 
                 try:
@@ -304,24 +311,18 @@ Hotel Limit: {hotel_limit} MXN
                     response = client.responses.create(
                         model="gpt-5",
                         input=f"""
-You are TravelAI.
-
-You help employees understand
-their travel expense reports.
+You are TravelAI, an enterprise travel expense assistant.
 
 Company Policy:
-
 {policy_context}
 
 Expense Report:
-
 {report_context}
 
 User Question:
-
 {question}
 
-Provide a concise and professional answer.
+Answer professionally and explain policy violations when applicable.
 """
                     )
 
