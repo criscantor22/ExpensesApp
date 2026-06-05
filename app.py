@@ -321,7 +321,13 @@ Review expenses flagged by compliance policies.
 # FLOATING COPILOT
 # =========================
 
-report_context = df.to_string(index=False)
+if st.session_state.report_generated:
+
+    report_context = df.to_string(index=False)
+
+else:
+
+    report_context = "No report generated yet."
 
 policy_context = f"""
 Meal Limit: {meal_limit} MXN
